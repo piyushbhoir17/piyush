@@ -63,7 +63,7 @@ jobs:
           # Generate base configuration defconfig
           make O=out asus/X00TD_defconfig
 
-          # Execute compile sequence matching Clang layout requirements
+          # Execute compile sequence with fixed host compilation flags
           make -j$(nproc --all) \
             O=out \
             ARCH=arm64 \
@@ -77,8 +77,10 @@ jobs:
             OBJCOPY=llvm-objcopy \
             OBJDUMP=llvm-objdump \
             STRIP=llvm-strip \
-            KCFLAGS="-Wno-error -Wno-implicit-function-declaration"
-
+            HOSTCFLAGS="-O2 -g -fcommon" \
+            HOSTCXXFLAGS="-O2 -g -fcommon" \
+            KCFLAGS="-Wno-error -Wno-implicit-function-declaration -fcommon"
+            
       - name: Upload Kernel Artifacts
         uses: actions/upload-artifact@v4
         with:

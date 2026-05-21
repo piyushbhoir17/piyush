@@ -28,13 +28,9 @@ jobs:
           gnupg \
           gperf \
           imagemagick \
-          lib32ncurses5-dev \
-          lib32readline-dev \
-          lib32z1-dev \
+          libncurses-dev \
           libelf-dev \
           liblz4-tool \
-          libncurses5-dev \
-          libsdl1.2-dev \
           libssl-dev \
           libxml2 \
           libxml2-utils \
@@ -48,7 +44,8 @@ jobs:
           zlib1g-dev \
           unzip \
           device-tree-compiler \
-          cpio
+          cpio \
+          python3
 
       - name: Clone Proton Clang
         run: |

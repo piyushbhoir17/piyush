@@ -48,22 +48,26 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/ZyCromerZ/Clang.git ~/clang
 
+      - name: Fix Upstream DTC Variable Collision
+        run: |
+          # Resolve GCC 10+ global declaration bugs inline across lexer components
+          find scripts/dtc/ -type f -name "dtc-lexer.l" -exec sed -i 's/^YYLTYPE yylloc;/extern YYLTYPE yylloc;/g' {} +
+          find scripts/dtc/ -type f -name "dtc-lexer.lex.c_shipped" -exec sed -i 's/^YYLTYPE yylloc;/extern YYLTYPE yylloc;/g' {} +
+
       - name: Build Kernel
         run: |
-          # Set up target architecture definitions
           export ARCH=arm64
           export SUBARCH=arm64
           
-          # Add Clang binaries directory straight to the execution PATH
+          # Map toolchain binary path variables
           export PATH=~/clang/bin:$PATH
           
-          # Clean and prep compilation target directory
           mkdir -p out
           
-          # Generate base configuration defconfig
+          # Initialize device architecture defconfig configuration matrix
           make O=out asus/X00TD_defconfig
 
-          # Execute compile sequence with fixed host compilation flags
+          # Compile using complete LLVM ecosystem parameter flags
           make -j$(nproc --all) \
             O=out \
             ARCH=arm64 \
@@ -77,8 +81,6 @@ jobs:
             OBJCOPY=llvm-objcopy \
             OBJDUMP=llvm-objdump \
             STRIP=llvm-strip \
-            HOSTCFLAGS="-O2 -g -fcommon" \
-            HOSTCXXFLAGS="-O2 -g -fcommon" \
             KCFLAGS="-Wno-error -Wno-implicit-function-declaration -fcommon"
             
       - name: Upload Kernel Artifacts

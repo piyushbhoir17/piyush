@@ -14,62 +14,72 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-
           sudo apt install -y \
-          bc \
-          bison \
-          build-essential \
-          ccache \
-          curl \
-          flex \
-          g++-multilib \
-          gcc-multilib \
-          git \
-          gnupg \
-          gperf \
-          imagemagick \
-          libncurses-dev \
-          libelf-dev \
-          liblz4-tool \
-          libssl-dev \
-          libxml2 \
-          libxml2-utils \
-          lzop \
-          pngcrush \
-          rsync \
-          schedtool \
-          squashfs-tools \
-          xsltproc \
-          zip \
-          zlib1g-dev \
-          unzip \
-          device-tree-compiler \
-          cpio \
-          python3
+            bc \
+            bison \
+            build-essential \
+            ccache \
+            curl \
+            flex \
+            g++-multilib \
+            gcc-multilib \
+            git \
+            gnupg \
+            gperf \
+            libncurses-dev \
+            libelf-dev \
+            liblz4-tool \
+            libssl-dev \
+            libxml2 \
+            libxml2-utils \
+            lzop \
+            rsync \
+            schedtool \
+            squashfs-tools \
+            xsltproc \
+            zip \
+            zlib1g-dev \
+            unzip \
+            device-tree-compiler \
+            cpio \
+            python3
 
-      - name: Clone Clang
+      - name: Clone Clang Toolchain
         run: |
           git clone --depth=1 https://github.com/ZyCromerZ/Clang.git ~/clang
 
       - name: Build Kernel
         run: |
+          # Set up target architecture definitions
           export ARCH=arm64
           export SUBARCH=arm64
+          
+          # Add Clang binaries directory straight to the execution PATH
           export PATH=~/clang/bin:$PATH
-
+          
+          # Clean and prep compilation target directory
           mkdir -p out
-
+          
+          # Generate base configuration defconfig
           make O=out asus/X00TD_defconfig
 
+          # Execute compile sequence matching Clang layout requirements
           make -j$(nproc --all) \
-          O=out \
-          ARCH=arm64 \
-          CC=clang \
-          KCFLAGS=-Wno-error \
-          CROSS_COMPILE=aarch64-linux-gnu- \
-          CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+            O=out \
+            ARCH=arm64 \
+            CC=clang \
+            CLANG_TRIPLE=aarch64-linux-gnu- \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+            LD=ld.lld \
+            AR=llvm-ar \
+            NM=llvm-nm \
+            OBJCOPY=llvm-objcopy \
+            OBJDUMP=llvm-objdump \
+            STRIP=llvm-strip \
+            KCFLAGS="-Wno-error -Wno-implicit-function-declaration"
 
-      - name: Upload Kernel
+      - name: Upload Kernel Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: X00TD-Kernel

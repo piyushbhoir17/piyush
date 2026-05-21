@@ -47,15 +47,15 @@ jobs:
           cpio \
           python3
 
-      - name: Clone Proton Clang
+      - name: Clone Clang
         run: |
-          git clone --depth=1 https://github.com/kdrag0n/proton-clang.git ~/proton-clang
+          git clone --depth=1 https://github.com/ZyCromerZ/Clang.git ~/clang
 
       - name: Build Kernel
         run: |
           export ARCH=arm64
           export SUBARCH=arm64
-          export PATH=~/proton-clang/bin:$PATH
+          export PATH=~/clang/bin:$PATH
 
           mkdir -p out
 

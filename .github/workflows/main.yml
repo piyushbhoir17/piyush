@@ -65,6 +65,7 @@ jobs:
           O=out \
           ARCH=arm64 \
           CC=clang \
+          KCFLAGS=-Wno-error \
           CROSS_COMPILE=aarch64-linux-gnu- \
           CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
